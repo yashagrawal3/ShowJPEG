@@ -27,15 +27,17 @@ B_AND_W_MODE = 1
 
 _ohm_service = None
 
+
 def _get_ohm():
     if _ohm_service:
         return _ohm_service
 
     bus = dbus.SystemBus()
     proxy = bus.get_object(_HARDWARE_MANAGER_SERVICE,
-                            _HARDWARE_MANAGER_OBJECT_PATH)
+                           _HARDWARE_MANAGER_OBJECT_PATH)
 
     return dbus.Interface(proxy, _HARDWARE_MANAGER_INTERFACE)
+
 
 def set_dcon_freeze(frozen):
     try:
@@ -43,17 +45,20 @@ def set_dcon_freeze(frozen):
     except dbus.DBusException:
         logging.error('Cannot unfreeze the DCON')
 
+
 def set_display_mode(mode):
     try:
         _get_ohm().SetKey("display.dcon_mode", mode)
     except dbus.DBusException:
         logging.error('Cannot change DCON mode')
 
+
 def set_display_brightness(level):
     try:
         _get_ohm().SetKey("backlight.hardware_brightness", level)
     except dbus.DBusException:
         logging.error('Cannot set display brightness')
+
 
 def get_display_brightness():
     try:
