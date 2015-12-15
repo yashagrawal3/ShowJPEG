@@ -118,9 +118,6 @@ class VteActivity(ViewSourceActivity):
         self._vte.set_size_request(200, 300)
         font = 'Monospace 10'
         self._vte.set_font(Pango.FontDescription(font))
-        self._vte.set_colors(Gdk.color_parse('#000000'),
-                             Gdk.color_parse('#E7E7E7'),
-                             [])
         self._vte.connect('selection-changed', self._on_selection_changed_cb)
         self._vte.drag_dest_set(Gtk.DestDefaults.ALL,
                                 [],
