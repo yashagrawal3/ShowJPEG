@@ -16,8 +16,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-"""Pippy activity helper classes."""
+
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GLib
+from gi.repository import Pango
+from gi.repository import Vte
+
+from sugar3.graphics.toolbarbox import ToolbarBox
+from sugar3.activity.widgets import ActivityButton
+from sugar3.activity.widgets import TitleEntry
+from sugar3.activity.widgets import StopButton
+from sugar3.activity import activityfactory
 from sugar3.activity import activity
+from sugar3.activity.activity import get_bundle_name
+from sugar3.activity.activity import get_bundle_path
+from sugar3.bundle.activitybundle import ActivityBundle
+from sugar3 import profile
+from sugar3.datastore import datastore
+
+import sys
+import os
+import os.path
+from gettext import gettext as _
 
 
 class ViewSourceActivity(activity.Activity):
@@ -29,7 +50,6 @@ class ViewSourceActivity(activity.Activity):
         self.connect('key-press-event', self._key_press_cb)
 
     def _key_press_cb(self, widget, event):
-        from gi.repository import Gdk
         if Gdk.keyval_name(event.keyval) == 'XF86Start':
             self.view_source()
             return True
@@ -39,12 +59,6 @@ class ViewSourceActivity(activity.Activity):
         """Implement the 'view source' key by saving show.py to the
         datastore, and then telling the Journal to view it."""
         if self.__source_object_id is None:
-            from sugar3 import profile
-            from sugar3.datastore import datastore
-            from sugar3.activity.activity import get_bundle_name
-            from sugar3.activity.activity import get_bundle_path
-            from gettext import gettext as _
-            import os.path
             jobject = datastore.create()
             metadata = {
                 'title': _('%s Source') % get_bundle_name(),
@@ -61,15 +75,6 @@ class ViewSourceActivity(activity.Activity):
             jobject.destroy()
         self.journal_show_object(self.__source_object_id)
 
-    def journal_show_object(self, object_id):
-        """Invoke journal_show_object from sugar.activity.activity if it
-        exists."""
-        try:
-            from sugar3.activity.activity import show_object_in_journal
-            show_object_in_journal(object_id)
-        except ImportError:
-            pass  # no love from sugar.
-
 TARGET_TYPE_TEXT = 80
 
 
@@ -77,15 +82,6 @@ class VteActivity(ViewSourceActivity):
     """Activity subclass built around the Vte terminal widget."""
 
     def __init__(self, handle):
-        from gi.repository import Gtk
-        from gi.repository import Gdk
-        from gi.repository import GLib
-        from gi.repository import Pango
-        from gi.repository import Vte
-        from sugar3.graphics.toolbarbox import ToolbarBox
-        from sugar3.activity.widgets import ActivityButton
-        from sugar3.activity.widgets import TitleEntry
-        from sugar3.activity.widgets import StopButton
         super(VteActivity, self).__init__(handle)
         toolbox = ToolbarBox()
         self.set_toolbar_box(toolbox)
@@ -144,7 +140,7 @@ class VteActivity(ViewSourceActivity):
         bundle_path = activity.get_bundle_path()
         # the 'sleep 1' works around a bug with the command dying before
         # the vte widget manages to snarf the last bits of its output
-        self._pid = self._vte.fork_command_full(
+        self._pid = self._vte.spawn_sync(
             Vte.PtyFlags.DEFAULT, bundle_path,
             ['/bin/sh', '-c', 'python %s/show.py; sleep 1' % bundle_path],
             ["PYTHONPATH=%s/library" % bundle_path],
@@ -164,18 +160,12 @@ class VteActivity(ViewSourceActivity):
         if targetType == TARGET_TYPE_TEXT:
             self._vte.feed_child(selection.data)
 
-    def on_child_exit(self, widget):
-        import sys
+    def on_child_exit(self, widget, status):
         sys.exit(0)
 
 
 def _main():
     """Launch this activity from the command line."""
-    from sugar3.activity import activityfactory
-    from sugar3.activity.registry import ActivityInfo
-    from sugar3.bundle.activitybundle import ActivityBundle
-    import os
-    import os.path
     ab = ActivityBundle(os.path.dirname(__file__) or '.')
     ai = ActivityInfo(name=ab.get_name(),
                       icon=None,
