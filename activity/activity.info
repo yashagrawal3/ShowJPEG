@@ -3,7 +3,7 @@
 name = ShowJPEG
 bundle_id = org.laptop.wad.Show
 service_name = org.laptop.wad.Show
-class = activity.VteActivity
+exec = sugar-activity activity.VteActivity
 icon = activity-icon
 activity_version = 12
 mime_types = 

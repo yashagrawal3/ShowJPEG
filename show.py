@@ -26,6 +26,7 @@ import os
 from stat import *
 import pygame
 import xoscreen
+from gettext import gettext as _
 
 MAX_HISTORY_SIZE = 120
 
@@ -229,7 +230,7 @@ def print_note(msg, msg_color=pause_color):
 
 
 def print_paused():
-    print_note('PAUSED')
+    print_note(_("PAUSED"))
 
 
 #################################################################
@@ -245,7 +246,7 @@ pygame.mouse.set_visible(False)   # turn off cursor
 # create the pygame window at the desired size and return a Surface object for
 # drawing in that window.
 screen = pygame.display.set_mode(size)
-print_centered_msg("Fetching photos...")
+print_centered_msg(_("Fetching photos..."))
 
 #  Initialize the MediaArchive by telling it what photo books to search
 books = MediaArchive()
