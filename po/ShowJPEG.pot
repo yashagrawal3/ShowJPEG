@@ -25,3 +25,12 @@ msgstr ""
 #, python-format
 msgid "%s Source"
 msgstr ""
+
+#: show.py:232
+msgid "PAUSED"
+msgstr ""
+
+#: show.py:248
+msgid "Fetching photos..."
+msgstr ""
+
